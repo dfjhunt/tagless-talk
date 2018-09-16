@@ -16,3 +16,16 @@
 **/target
 **/target/**
 **/target/*
+
+# All eclipse files
+**/.classpath
+**/.project
+**/.settings
+.settings
+.nb-gradle
+
+# All IntelliJ IDEA files
+**/.idea/
+**/*.iml
+**/*.ipr
+**/*.iws
