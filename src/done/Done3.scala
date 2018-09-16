@@ -5,7 +5,7 @@ class Talk3 {
   
   
   
-  //Added negation as a term
+  //Added negation as a term to the IExpr from the talk.
   trait IExp[T[_]] {
     def const(i: Int): T[Int]
     def add(e1: T[Int], e2: T[Int]): T[Int]
@@ -13,7 +13,7 @@ class Talk3 {
   }
 
   def program[T[_]](implicit I: IExp[T]) =
-    I.neg(I.add(I.const(2), I.neg(I.const(3))))//-(2 + -3)
+    I.neg(I.add(I.const(2), I.neg(I.const(3))))    //-(2 + -3)
     
   type Str[A]=String
   
@@ -31,7 +31,7 @@ class Talk3 {
   
   //We want to push all negation terms down to the consts, so convert our
   //program from -(2 + -3) to (-2 + 3).  But in tagless final the terms are
-  //all compositional, the interpreting for the term knows nothing about
+  //all compositional, the interpreter code for a term knows nothing about
   //the parent or children in the structure.  We need some way to push that
   //contextual information from the parents to the children.  The first step
   //is to make the context explicit.
@@ -52,8 +52,8 @@ class Talk3 {
   //
   //type f[x] = Function1[Ctx, T[x]]
   //
-  //In this case, we don't know what T is yet, it isn't in this scope, it 
-  //will be in our interpreters scope so we'll have to use a type lambda.
+  //but in this case, we don't know what T is yet, it isn't in this scope, it 
+  //will be in our interpreter's scope so we'll have to use a type lambda.
   //This could be made cleaner with kind-projector.
   
   class PushNeg[T[_]](implicit I:IExp[T]) 
@@ -77,11 +77,11 @@ class Talk3 {
   //Create the converting interpreter for the Str typeclass
   val pushNPrint = new PushNeg[Str]
   
-  //Interpret the program
+  //Interpret the program, creating our function from context to string.
   val programPush:Ctx=>String = 
     program[({type f[x] = (Ctx => Str[x])})#f ](pushNPrint)
     
-  //The outermost context is set to positive
+  //Pass in positive as the outermost context.
   println(programPush(Pos))
   
 }

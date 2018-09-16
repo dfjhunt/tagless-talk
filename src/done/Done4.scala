@@ -2,6 +2,12 @@ package done
 
 class Talk4 {
 
+  //I didn't love the solution from Done3 because the conversion step
+  //also locked in the interpreter.  This meant it created a function
+  //from Ctx=>T[X] where T was already determined rather than a new 
+  //program of type IExpr[T]=>T where T could still be determined by a 
+  //different interpreter.  This solution attempts to do the latter.
+  
   trait IExp[T[_]] {
     def const(i: Int): T[Int]
     def add(e1: T[Int], e2: T[Int]): T[Int]
@@ -49,10 +55,10 @@ class Talk4 {
   //
   //Ctx => IExp[T] => T
   //
-  //I had to use a nested lambda here and it is a bit of a mess.  
-  //I've tried a bunch of other ideas but so far none of them have both
-  //type checked and allowed T to stay generic.  I'm not sure this is
-  //completely type-safe any more.
+  //I had to use a type lambda nested in a type lambda here and it is 
+  //a bit of a mess.  I've tried a bunch of other ideas but so far none 
+  //of them have both type checked and allowed T to stay generic.  I'm 
+  //not sure this is completely type-safe any more.
   
   class PushNeg
     extends IExp[({ type f[x] = (Ctx => IExp >>> ({ type g[y[_]] = Id[y[x]] })#g) })#f] {
@@ -82,13 +88,14 @@ class Talk4 {
   }
 
   //This will interpret the original program into the function that
-  //takes context and then apply the context to get a new interpretable
-  //tagless final program.
+  //takes context to produce a new tagless final program.  It then 
+  //applies the context.
   val programPushed =
     program[({ type f[x] = 
       (Ctx => IExp >>> ({ type g[y[_]] = Id[y[x]] })#g) })#f](new PushNeg)(Pos)
 
-  //Prove we can still interpret the converted program multiple ways.
+  //This shows that we can still interpret the converted program 
+  //multiple ways.
   println("Restructured")
   println(programPushed[Str])
   println(programPushed[Id])
