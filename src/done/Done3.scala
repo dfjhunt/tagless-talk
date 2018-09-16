@@ -5,7 +5,7 @@ class Talk3 {
   
   
   
-  
+  //Added negation as a term
   trait IExp[T[_]] {
     def const(i: Int): T[Int]
     def add(e1: T[Int], e2: T[Int]): T[Int]
@@ -13,7 +13,7 @@ class Talk3 {
   }
 
   def program[T[_]](implicit I: IExp[T]) =
-    I.neg(I.add(I.const(2), I.neg(I.const(3))))
+    I.neg(I.add(I.const(2), I.neg(I.const(3))))//-(2 + -3)
     
   type Str[A]=String
   
@@ -29,14 +29,32 @@ class Talk3 {
   
   
   
-  
-  
-  
+  //We want to push all negation terms down to the consts, so convert our
+  //program from -(2 + -3) to (-2 + 3).  But in tagless final the terms are
+  //all compositional, the interpreting for the term knows nothing about
+  //the parent or children in the structure.  We need some way to push that
+  //contextual information from the parents to the children.  The first step
+  //is to make the context explicit.
   
   sealed trait Ctx
   case object Pos extends Ctx
   case object Neg extends Ctx
   
+  
+  //In order to push the context down we're going to interpret our program
+  //into a function that takes a Ctx and returns a T[X].  That way every
+  //term is able to receive context from its parent and pass it to its
+  //children.
+  
+  //The return type we want is Ctx->T[X] but tagless final needs a type
+  //that is a type constructor so we need to leave a hole in the function 
+  //type.  In some situations we could just do this
+  //
+  //type f[x] = Function1[Ctx, T[x]]
+  //
+  //In this case, we don't know what T is yet, it isn't in this scope, it 
+  //will be in our interpreters scope so we'll have to use a type lambda.
+  //This could be made cleaner with kind-projector.
   
   class PushNeg[T[_]](implicit I:IExp[T]) 
     extends IExp[({type f[x] = (Ctx => T[x])})#f ] {
@@ -56,13 +74,15 @@ class Talk3 {
   }
   
   
-  
+  //Create the converting interpreter for the Str typeclass
   val pushNPrint = new PushNeg[Str]
   
+  //Interpret the program
   val programPush:Ctx=>String = 
     program[({type f[x] = (Ctx => Str[x])})#f ](pushNPrint)
     
-  //println(programPush(Pos))
+  //The outermost context is set to positive
+  println(programPush(Pos))
   
 }
 

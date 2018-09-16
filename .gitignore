@@ -1,0 +1,18 @@
+*.class
+
+# All build and bin directories
+**/build
+**/build/**
+**/build/*
+
+**/bin
+**/bin/**
+**/bin/*
+
+**/doc
+**/doc/**
+**/doc/*
+
+**/target
+**/target/**
+**/target/*

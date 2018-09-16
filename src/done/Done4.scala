@@ -1,6 +1,5 @@
 package done
 
-
 class Talk4 {
 
   trait IExp[T[_]] {
@@ -14,10 +13,10 @@ class Talk4 {
 
   type Str[A] = String
 
-  implicit val printI = new  IExp[Str]{
-    def const(i:Int)=s"$i"
-    def add(e1:String, e2:String)=s"($e1 + $e2)"
-    def neg(e1:String) = s"-$e1"
+  implicit val printI = new IExp[Str] {
+    def const(i: Int) = s"$i"
+    def add(e1: String, e2: String) = s"($e1 + $e2)"
+    def neg(e1: String) = s"-$e1"
   }
 
   type Id[A] = A
@@ -28,29 +27,33 @@ class Talk4 {
     def neg(e1: Int) = -1 * e1
   }
 
+  println("Original")
   println(program[Str])
   println(program[Id])
   println
-  
-  
-  
-  
-  
-  
+
   sealed trait Ctx
   case object Pos extends Ctx
   case object Neg extends Ctx
 
+  //I stole some ideas from Shapeless here, we want to return a function
+  //IExp[T] -> T  but we want T to be generic.  Since functions can't 
+  //have generics, only methods, we create a class here.
   
-  
-  
-  
-  
-  
-  trait >>>[F[_[_]], G[_[_]]] {
+  trait >>>[F[X[_]], G[X[_]]] {
     def apply[T[_]](implicit f: F[T]): G[T]
   }
 
+ 
+  //So the desired type of the interpreter is:
+  //
+  //Ctx => IExp[T] => T
+  //
+  //I had to use a nested lambda here and it is a bit of a mess.  
+  //I've tried a bunch of other ideas but so far none of them have both
+  //type checked and allowed T to stay generic.  I'm not sure this is
+  //completely type-safe any more.
+  
   class PushNeg
     extends IExp[({ type f[x] = (Ctx => IExp >>> ({ type g[y[_]] = Id[y[x]] })#g) })#f] {
 
@@ -78,32 +81,18 @@ class Talk4 {
     }
   }
 
+  //This will interpret the original program into the function that
+  //takes context and then apply the context to get a new interpretable
+  //tagless final program.
   val programPushed =
     program[({ type f[x] = 
       (Ctx => IExp >>> ({ type g[y[_]] = Id[y[x]] })#g) })#f](new PushNeg)(Pos)
 
-  println(programPushed[Str]) 
+  //Prove we can still interpret the converted program multiple ways.
+  println("Restructured")
+  println(programPushed[Str])
   println(programPushed[Id])
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 object Talk4 {
   def main(args: Array[String]) {
