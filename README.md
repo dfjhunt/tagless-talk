@@ -11,3 +11,16 @@ This is the material used for my PHASE talk on tagless final.  I added a few com
 <b>src/done/Done2.scala</b> - Second part of the talk, finished beforehand.</br>
 <b>src/done/Done3.scala</b> - Implemented an example of using an interpreter to convert the structure of a tagless final program.</br>
 <b>src/done/Done4.scala</b> - A different solution for structural conversion that leaves the interpretation more flexible. (see comments)</br>
+
+
+References</br>
+
+Finally Tagless, Partially Evaluated:</br>
+Tagless Staged Interpreters for Simpler Typed Languages</br>
+http://okmij.org/ftp/tagless-final/</br>
+
+
+<b>Please</b> send question, corrections, ideas, solutions, etc. to:</br>
+Me:         Dan Hunt</br>
+Email:      dfjhunt@gmail.com</br>
+LinkedIn:   linkedin.com/in/daniel-hunt-4825395a
